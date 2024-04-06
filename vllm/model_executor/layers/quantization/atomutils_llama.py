@@ -3,9 +3,8 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 from transformers.models.llama.modeling_llama import LlamaDecoderLayer
-from qLinearLayer import find_qlinear_layers
-from qLlamaLayer import QLlamaDecoderLayer
-from gptq import GPTQ, Quantizer_GPTQ
+from vllm.model_executor.layers.qLinearLayer import find_qlinear_layers
+from vllm.model_executor.layers.qLlamaLayer import QLlamaDecoderLayer
 from functools import partial
 
 from vllm.model_executor.layers.quantization.atom_quant import quantize_activation_wrapper, quantize_attn_v_wrapper, quantize_attn_k_wrapper

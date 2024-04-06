@@ -39,8 +39,6 @@ def run_vllm(
         max_model_len=max_model_len,
         enforce_eager=enforce_eager,
         gpu_memory_utilization=0.96,
-        max_num_seqs=512*24,
-        max_num_batched_tokens=17120*24,
     )
 
     # Add the requests to the engine.

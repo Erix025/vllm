@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple
 import math
 from transformers.models.llama.modeling_llama import LlamaDecoderLayer, LlamaRMSNorm, LlamaAttention, LlamaMLP
 from vllm.model_executor.layers.quantization.atom_quant import Quantizer, fake_quantize_quarter_E5M2, fake_quantize_quarter_E4M3, quantize_tensor, quantize_tensor_channel_group
-from qLinearLayer import QLinearLayer
+from vllm.model_executor.layers.qLinearLayer import QLinearLayer
 
 def rotate_half(x):
     """Rotates half the hidden dims of the input."""

@@ -448,140 +448,40 @@ class LlamaForCausalLM(nn.Module):
         from vllm.model_executor.layers.quantization.atomutils_llama import (
             reorder_model_llama, add_act_quant_wrapper_llama, quantize_model_gptq_llama, quantize_model_llama)  
         # args
-        import argparse
-        parser = argparse.ArgumentParser()
-        parser.add_argument(
-            'model', type=str,
-            help='LlaMa model to load; pass location of hugginface converted checkpoint.'
-        )
-        parser.add_argument(
-            'dataset', type=str, choices=['wikitext2', 'ptb', 'c4'],
-            help='Where to extract calibration data from.'
-        )
-        parser.add_argument(
-            '--seed',
-            type=int, default=0, 
-            help='Seed for sampling the calibration data.'
-        )
-        parser.add_argument(
-            '--nsamples', type=int, default=128,
-            help='Number of calibration data samples.'
-        )
-        # Quantization Method
-        parser.add_argument(
-            '--wbits', type=int, default=16, choices=[2, 3, 4, 8, 16],
-            help='#bits to use for quantizing weight; use 16 for evaluating base model.'
-        )
-        parser.add_argument(
-            '--abits', type=int, default=16, choices=[2, 3, 4, 8, 16],
-            help='#bits to use for quantizing activation; use 16 for evaluating base model.'
-        )
-        parser.add_argument(
-            '--exponential', action='store_true',
-            help='Whether to use exponential-only for weight quantization.'
-        )
-        parser.add_argument(
-            '--a_sym', action='store_true',
-            help='Whether to perform symmetric quantization. Default is asymmetric.'
-        )
-        parser.add_argument(
-            '--w_sym', action='store_true',
-            help='Whether to perform symmetric quantization. Default is asymmetric.'
-        )
-        parser.add_argument(
-            '--static', action='store_true',
-            help='Whether to perform static quantization (For activtions). Default is dynamic. (Deprecated in Atom)'
-        )
-        parser.add_argument(
-            '--weight_group_size', type=int, default=0, choices=[0, 32, 64, 128, 256, 384, 768],
-            help='Group size when quantizing weights. Using 128 as default quantization group.'
-        )
-        parser.add_argument(
-            '--weight_channel_group', type=int, default=1,
-            help='Group size of channels that will quantize together. (only for weights now)'
-        )
-        parser.add_argument(
-            '--act_group_size', type=int, default=0, choices=[0, 64, 128, 256, 384, 768],
-            help='Group size when quantizing activations. Using 128 as default quantization group.'
-        )
-        parser.add_argument(
-            '--reorder', action='store_true',
-            help='Whether to keep salient weight unquantized.'
-        )
-        parser.add_argument(
-            '--act_sort_metric', type=str, default='hessian', choices=['abs_mean', 'hessian'],
-            help='The metric used to sort the activations.'
-        )
-        parser.add_argument(
-            '--keeper', type=int, default=0,
-            help='Group size to keep outliers.'
-        )
-        parser.add_argument(
-            '--keeper_precision', type=int, default=0, choices=[0, 1, 2, 3],
-            help='Precision to keep outliers. 0 for FP16; 1 for E5M2; 2 for E4M3; 3 for INT8 Quant.'
-        )
-        parser.add_argument(
-            '--cache_index', action='store_true',
-            help='Whether to use cached reorder index'
-        )
-        parser.add_argument(
-            '--tiling', type=int, default=0, choices=[0, 16],
-            help='Tile-wise quantization granularity (Deprecated in Atom).'
-        )
-        parser.add_argument(
-            '--kv_cache', action='store_true',
-            help='Whether to quant KV_Cache'
-        )
-        parser.add_argument(
-            '--use_gptq', action='store_true',
-            help='Whether to use GPTQ for weight quantization.'
-        )
-        parser.add_argument(
-            '--percdamp', type=float, default=.01,
-            help='Percent of the average Hessian diagonal to use for dampening.'
-        )
-        parser.add_argument(
-            '--a_clip_ratio', type=float, default=1.0,
-            help='Clip ratio for activation quantization. new_max = max * clip_ratio'
-        )
-        parser.add_argument(
-            '--w_clip_ratio', type=float, default=1.0,
-            help='Clip ratio for weight quantization. new_max = max * clip_ratio'
-        )
-        parser.add_argument(
-            '--kv_clip_ratio', type=float, default=1.0,
-            help='Clip ratio for kv cache quantization. new_max = max * clip_ratio'
-        )
-        parser.add_argument(
-            "--eval_ppl", action="store_true",
-            help='Whether to evaluate perplexity.'
-        )
-        parser.add_argument(
-            "--eval_common_sense", action="store_true",
-            help='Whether to evaluate zero-shot accuray on commonsense reasoning tasks.'
-        )
-        parser.add_argument(
-            "--multigpu", action="store_true", 
-            help="at eval, map model to multiple gpus"
-        )
-        parser.add_argument(
-            "--lm_eval_num_fewshot", type=int, default=0, 
-            help="Number of shots in lm evaluation. Default is 0 for zero-shot."
-        )
-        parser.add_argument(
-            "--lm_eval_limit", type=int, default=-1, 
-            help="Limit the number of examples in lm evaluation"
-        )
-        parser.add_argument(
-            '--save_dir', type=str, default='./saved',
-            help='Path to store the reordering indices and quantized weights.'
-        )
-        
-        args = parser.parse_args()
+        args = {
+            'wbits': 4,
+            'abits': 4,
+            'exponential': False,
+            'a_sym': False,
+            'w_sym': False,
+            'static': False,
+            'weight_group_size': 0,
+            'weight_channel_group': 1,
+            'act_group_size': 0,
+            'reorder': False,
+            'act_sort_metric': 'hessian',
+            'keeper': 0,
+            'keeper_precision': 0,
+            'cache_index': False,
+            'tiling': 0,
+            'kv_cache': False,
+            'use_gptq': False,
+            'percdamp': 0.01,
+            'a_clip_ratio': 1.0,
+            'w_clip_ratio': 1.0,
+            'kv_clip_ratio': 1.0,
+            'eval_ppl': False,
+            'eval_common_sense': False,
+            'multigpu': False,
+            'lm_eval_num_fewshot': 0,
+            'lm_eval_limit': -1,
+            'save_dir': './saved'
+        }
+
         DEV = torch.device('cuda:0')
         print("Inserting activations quantizers ...")
         scales = defaultdict(lambda: None)
-        self.model = add_act_quant_wrapper_llama(self.model, device=DEV, args=args, scales=scales)
+        self = add_act_quant_wrapper_llama(self, device=DEV, args=args, scales=scales)
         print("Quantizing...")
-        self.model = quantize_model_llama(self.model, device=DEV, args=args)
+        self = quantize_model_llama(self, device=DEV, args=args)
         return self
