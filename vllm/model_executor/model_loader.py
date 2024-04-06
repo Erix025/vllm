@@ -55,7 +55,7 @@ def get_model(model_config: ModelConfig, device_config: DeviceConfig,
 
     # Get the (maybe quantized) linear method.
     linear_method = None
-    if model_config.quantization is not None:
+    if model_config.quantization is not None and model_config.quantization != "atom":
         quant_config = get_quant_config(model_config)
         capability = torch.cuda.get_device_capability()
         capability = capability[0] * 10 + capability[1]
@@ -100,4 +100,6 @@ def get_model(model_config: ModelConfig, device_config: DeviceConfig,
             # Load the weights from the cached or downloaded files.
             model.load_weights(model_config.model, model_config.download_dir,
                                model_config.load_format, model_config.revision)
+    if model_config.quantization == "atom":
+        model = model.atomize()
     return model.eval()

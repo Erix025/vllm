@@ -443,7 +443,7 @@ class LlamaForCausalLM(nn.Module):
                 raise RuntimeError("Self attention has no KV cache scaling "
                                    "factor attribute!")
 
-    def _atomize(self, reorder=False, cache_index=False) -> None:  
+    def atomize(self, reorder=False, cache_index=False) -> None:  
         from collections import defaultdict
         from vllm.model_executor.layers.quantization.atomutils_llama import (
             reorder_model_llama, add_act_quant_wrapper_llama, quantize_model_gptq_llama, quantize_model_llama)  
@@ -584,3 +584,4 @@ class LlamaForCausalLM(nn.Module):
         self.model = add_act_quant_wrapper_llama(self.model, device=DEV, args=args, scales=scales)
         print("Quantizing...")
         self.model = quantize_model_llama(self.model, device=DEV, args=args)
+        return self
