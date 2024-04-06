@@ -62,14 +62,14 @@ class AtomConfig(QuantizationConfig):
         zero_point = cls.get_from_keys(config, ["zero_point"])
         return cls(weight_bits, group_size, zero_point)
 
-    def get_linear_method(self) -> "AtomLineatMethod":
-        return AtomLineatMethod(self)
+    def get_linear_method(self) -> "AtomLinearMethod":
+        return AtomLinearMethod(self)
 
     def get_scaled_act_names(self) -> List[str]:
         return ["gelu", "gelu_fast", "gelu_new", "gelu_pytorch_tanh"]
 
 
-class AtomLineatMethod(LinearMethodBase):
+class AtomLinearMethod(LinearMethodBase):
     """Linear method for AWQ.
 
     Args:
